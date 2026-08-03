@@ -1,0 +1,25 @@
+[project]
+name = "jsonpatchkit"
+version = "0.1.0"
+description = "Granular, schema-safe JSON editing for LLM tool calling: patch existing documents instead of regenerating them."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    {name = "Noah Scharrenberg", email = "nscharrenberg+github@proton.me" }
+]
+keywords = ["llm", "json-patch", "pydantic", "structured-output", "tool-calling", "langchain", "langgraph"]
+dependencies = [
+    "pydantic>=2.13.4,<3.0",
+]
+
+[project.optional-dependencies]
+langchain = ["langchain-core>=1.5.3,<2.0"]
+
+dev = [
+    "pytest>=9.1.1,<10.0",
+    "ruff>=0.16.1",
+    "mypy>=2.3.0",
+    "langchain-core>=1.5.3,<2.0",
+]
+
