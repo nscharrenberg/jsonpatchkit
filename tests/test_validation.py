@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 
-from jsonpatchkit.validation import format_errors_for_retry_prompt, validate_against_schema  # type: ignore[import-untyped]
+from jsonpatchkit.validation import (  # type: ignore[import-untyped]
+    format_errors_for_retry_prompt,
+    validate_against_schema,
+)
 
 
 class _Person(BaseModel):
@@ -32,7 +35,8 @@ def test_missing_required_field_reported() -> None:
 
 
 def test_format_errors_for_retry_prompt_is_human_readable() -> None:
-    """Given validation errors, the format_errors_for_retry_prompt function should return a human-readable string."""
+    """Given validation errors, the format_errors_for_retry_prompt function
+    should return a human-readable string."""
     outcome = validate_against_schema({"age": "x"}, _Person)
     text = format_errors_for_retry_prompt(outcome.errors)
     assert "name" in text
