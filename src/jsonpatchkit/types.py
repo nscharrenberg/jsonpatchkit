@@ -20,6 +20,7 @@ class ToolCall:
     args: dict[str, Any]
     id: str | None = None
 
+
 @dataclass(frozen=True)
 class ExtractionResult:
     """

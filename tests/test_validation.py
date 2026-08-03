@@ -10,6 +10,7 @@ class _Person(BaseModel):
     name: str
     age: int
 
+
 def test_valid_data_returns_success_outcome() -> None:
     """Given valid data, the validation function should return a success outcome."""
     outcome = validate_against_schema({"name": "Alice", "age": 30}, _Person)

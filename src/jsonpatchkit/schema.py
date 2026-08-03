@@ -16,6 +16,7 @@ _PRIMITIVE_TYPES: dict[str, type] = {
 
 _NON_IDENTIFIER_CHARS = re.compile(r"\W")
 
+
 def _to_valid_identifier(name: str, taken: dict[str, int]) -> str:
     """
     Map an arbitrary JSON Schema property name to a valid, unique Python identifier
@@ -49,6 +50,7 @@ def _to_valid_identifier(name: str, taken: dict[str, int]) -> str:
 
     return unique
 
+
 def build_model_from_schema(
         json_schema: dict[str, Any],
         model_name: str | None = None
@@ -77,6 +79,7 @@ def build_model_from_schema(
     name = model_name or json_schema.get("title") or "DynamicModel"
     return _build_object_model(json_schema, name, defs)
 
+
 def _collect_defs(root_schema: dict[str, Any]) -> dict[str, Any]:
     """
     Gather reusable sub-schemas from "$defs" / "definitions".
@@ -97,10 +100,11 @@ def _collect_defs(root_schema: dict[str, Any]) -> dict[str, Any]:
         **root_schema.get("$defs", {}),
     }
 
+
 def _build_object_model(
-    schema: dict[str, Any],
-    name: str,
-    defs: dict[str, Any],
+        schema: dict[str, Any],
+        name: str,
+        defs: dict[str, Any],
 ) -> type[BaseModel]:
     """
     Builds a Pydantic object model from a given JSON schema.
@@ -168,6 +172,7 @@ def _build_object_model(
         __config__=ConfigDict(populate_by_name=True),
         **field_definitions,
     )
+
 
 def _resolve_type(field_schema: dict[str, Any], defs: dict[str, Any], context: str) -> Any:
     """
