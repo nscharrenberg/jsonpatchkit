@@ -294,6 +294,9 @@ requires-dist = [
 ]
 provides-extras = ["langchain", "dev"]
 
+[package.metadata.requires-dev]
+dev = []
+
 [[package]]
 name = "jsonpointer"
 version = "3.1.1"

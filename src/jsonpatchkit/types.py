@@ -7,9 +7,9 @@ class ToolCall:
     """
     A single tool call as reported by a model adapter.
 
-    This is the adapter boundary: every adapter (LangChain, a raw OpenAI client, a raw Anthropic client, ...)
-    must translate its own native tool-call representation into this one shape, so the extractor never needs
-    to know which backend produced it.
+    This is the adapter boundary: every adapter (LangChain, a raw OpenAI client, a raw Anthropic
+    client, ...) must translate its own native tool-call representation into this one shape,
+    so the extractor never needs to know which backend produced it.
 
     Attributes:
         name (str): The name of the tool being called.

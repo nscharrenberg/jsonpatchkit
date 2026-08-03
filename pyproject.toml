@@ -44,3 +44,6 @@ select = ["E", "F", "I", "UP", "B"]  # pycodestyle, pyflakes, isort, pyupgrade, 
 python_version = "3.10"
 strict = true
 files = ["src/jsonpatchkit"]
+
+[dependency-groups]
+dev = []
