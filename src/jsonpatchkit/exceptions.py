@@ -28,3 +28,6 @@ class PatchTestFailedError(JsonPatchKitError):
 
 class UnknownOperationError(JsonPatchKitError):
     """A patch operation's `op` field is not one of the RFC 6902 verbs."""
+
+class ExtractionRetriesExhaustedError(JsonPatchKitError):
+    """The model failed to produce a valid patch within the retry budget."""
