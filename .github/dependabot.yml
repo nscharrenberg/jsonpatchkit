@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Keep actions/checkout, actions/setup-python, pypa/gh-action-pypi-publish,
+  # etc. current. Action versions move faster than most people re-check
+  # manually — this catches it automatically instead.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Keep pydantic/langchain-core/pytest/ruff/mypy floors current.
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
