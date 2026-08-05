@@ -52,15 +52,19 @@ result = extractor.extract(
 
 ## Development
 
-Clone the repo, then set up an editable install with the dev extras
-(pytest, ruff, mypy, plus langchain-core for the adapter tests):
+Clone the repo, then set up an editable install with the `dev`
+dependency group (pytest, ruff, mypy, plus langchain-core for the
+adapter tests). This uses PEP 735 dependency groups, not a
+`project.optional-dependencies` extra, so it needs `pip>=25.1` (for the
+`--group` flag) rather than the more familiar `pip install -e ".[dev]"`:
 
 ```bash
 git clone <your-fork-url>
 cd jsonpatchkit
 python3 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+pip install --upgrade pip        # need >=25.1 for --group support
+pip install -e . --group dev
 ```
 
 ### Run the tests
@@ -296,7 +300,7 @@ be installed there.
   on this in production:
 
 ```bash
-pip install -e ".[dev]"
+pip install -e . --group dev
 pytest
 ```
 

@@ -6,6 +6,12 @@ name: CI
   pull_request:
   workflow_dispatch:
 
+# Least-privilege default: no job here needs to write to the repo. Jobs
+# that need more (none currently) should declare it explicitly at the
+# job level rather than raising this baseline.
+permissions:
+  contents: read
+
 # Cancel superseded runs on the same branch/PR so pushes to a fast-moving
 # PR don't queue up redundant CI runs.
 concurrency:
@@ -16,6 +22,7 @@ jobs:
   lint:
     name: Lint (ruff + mypy)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -23,13 +30,22 @@ jobs:
           # tags — a shallow checkout can't compute a version, and
           # `pip install -e .` below runs the build backend, which needs one.
           fetch-depth: 0
+          # Nothing in this job pushes back to the repo; don't leave a
+          # git credential sitting around for the `pip install` step
+          # (which runs arbitrary third-party setup/build code) to find.
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
-      - name: Install project (dev extras)
-        run: pip install -e ".[dev]"
+      # pytest/ruff/mypy live in [dependency-groups] (PEP 735), not
+      # [project.optional-dependencies] — `.[dev]` would silently
+      # install nothing for them. `--group` needs pip>=25.1.
+      - name: Install project (dev dependency group)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . --group dev
 
       - name: ruff check
         run: ruff check .
@@ -43,6 +59,7 @@ jobs:
   test:
     name: Test (py${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -53,13 +70,16 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install project (dev extras)
-        run: pip install -e ".[dev]"
+      - name: Install project (dev dependency group)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . --group dev
 
       - name: Run tests
         run: pytest --cov=jsonpatchkit --cov-report=xml --cov-report=term-missing
@@ -69,7 +89,7 @@ jobs:
       # enough to publish as an artifact rather than uploading 12 copies.
       - name: Upload coverage report
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage.xml
@@ -77,13 +97,15 @@ jobs:
   build-check:
     name: Verify package builds
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [lint, test]
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -97,7 +119,7 @@ jobs:
         run: twine check dist/*
 
       - name: Upload built distributions
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
