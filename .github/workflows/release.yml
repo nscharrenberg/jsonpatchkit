@@ -1,0 +1,115 @@
+name: Release
+
+# Versioning is git-tag-driven (see [tool.hatch.version] in
+# pyproject.toml, source = "vcs"). To ship a new release:
+#   1. git tag v0.2.0 && git push origin v0.2.0
+#   2. Create a GitHub Release from that tag (or `gh release create
+#      v0.2.0 --generate-notes`).
+#   3. This workflow builds the package with that tag's version baked
+#      in and publishes it to PyPI automatically. No file to edit, no
+#      version string to keep in sync by hand.
+"on":
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      publish_to_testpypi:
+        description: "Publish this build to TestPyPI instead of PyPI (manual dry run)"
+        type: boolean
+        default: true
+
+# Least-privilege default: only the two publish jobs need anything
+# beyond read access, and they declare that themselves (id-token: write
+# for PyPI trusted publishing) at the job level, which overrides this.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Required: hatch-vcs derives the version from git tags, so
+          # the build needs full history, not the default shallow clone.
+          fetch-depth: 0
+          # This job only reads the repo to build a package; don't leave
+          # a git credential around for `pip install build twine` (which
+          # runs arbitrary third-party setup code) to find.
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Check distribution metadata
+        run: twine check dist/*
+
+      - name: Report the version that was built
+        run: |
+          python -c "import pathlib; f = next(pathlib.Path('dist').glob('*.whl')); print(f'Built: {f.name}')"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  publish-pypi:
+    name: Publish to PyPI
+    # Only runs for an actual published GitHub Release — never for the
+    # manual workflow_dispatch dry-run path.
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/jsonpatchkit/
+    permissions:
+      # Required for trusted publishing (OIDC) — PyPI exchanges this
+      # token for a short-lived publish credential. No PyPI API token
+      # or repo secret needed, as long as a trusted publisher is
+      # configured on the PyPI project settings page for this exact
+      # repo + workflow filename.
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-testpypi:
+    name: Publish to TestPyPI (manual dry run)
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_to_testpypi
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/jsonpatchkit/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          # TestPyPI doesn't accept re-uploads of an existing version,
+          # and dry runs often reuse the same tag; skip instead of failing.
+          skip-existing: true
