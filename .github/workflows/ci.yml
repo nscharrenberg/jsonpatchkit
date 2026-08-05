@@ -60,6 +60,11 @@ jobs:
     name: Test (py${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    # id-token:write lets the Codecov upload step below authenticate via
+    # OIDC instead of a CODECOV_TOKEN secret (tokenless upload, public repo).
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -82,7 +87,7 @@ jobs:
           pip install -e . --group dev
 
       - name: Run tests
-        run: pytest --cov=jsonpatchkit --cov-report=xml --cov-report=term-missing
+        run: pytest --cov=jsonpatchkit --cov-branch --cov-report=xml --cov-report=term-missing
 
       # Coverage numbers can differ trivially by platform/Python version
       # (e.g. formatting-only branches); one representative combo is
@@ -93,6 +98,14 @@ jobs:
         with:
           name: coverage-report
           path: coverage.xml
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
+          use_oidc: true
+          fail_ci_if_error: false
 
   build-check:
     name: Verify package builds

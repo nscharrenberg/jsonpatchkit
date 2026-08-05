@@ -1,6 +1,7 @@
 # jsonpatchkit
 
 [![CI](https://github.com/nscharrenberg/jsonpatchkit/actions/workflows/ci.yml/badge.svg)](https://github.com/nscharrenberg/jsonpatchkit/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/nscharrenberg/jsonpatchkit/graph/badge.svg)](https://codecov.io/gh/nscharrenberg/jsonpatchkit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml)
 
@@ -108,7 +109,7 @@ pip install -e . --group dev
 pytest                           # whole suite
 pytest tests/test_pointer.py     # a single module
 pytest -k "test_move"            # tests matching a name pattern
-pytest --cov=jsonpatchkit --cov-report=term-missing   # with coverage
+pytest --cov=jsonpatchkit --cov-branch --cov-report=term-missing   # with coverage
 ```
 
 ### Lint, format, type-check
@@ -150,9 +151,10 @@ instead, for dry-running a release.
 
 CI (`.github/workflows/ci.yml`) runs ruff, ruff format --check, and mypy
 in one job; pytest across Python 3.10–3.13 on Ubuntu, Windows, and macOS
-in another; and a build-verification job (`python -m build` + `twine
-check`) on every push and pull request. Dependabot keeps GitHub Actions
-versions and dependency floors current.
+in another (uploading a coverage report to Codecov from the Ubuntu/3.12
+run); and a build-verification job (`python -m build` + `twine check`)
+on every push and pull request. Dependabot keeps GitHub Actions versions
+and dependency floors current.
 
 ## License
 
