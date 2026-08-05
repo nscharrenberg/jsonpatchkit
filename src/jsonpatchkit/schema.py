@@ -52,8 +52,7 @@ def _to_valid_identifier(name: str, taken: dict[str, int]) -> str:
 
 
 def build_model_from_schema(
-        json_schema: dict[str, Any],
-        model_name: str | None = None
+    json_schema: dict[str, Any], model_name: str | None = None
 ) -> type[BaseModel]:
     """
     Builds a Pydantic model dynamically based on a provided JSON schema.
@@ -102,9 +101,9 @@ def _collect_defs(root_schema: dict[str, Any]) -> dict[str, Any]:
 
 
 def _build_object_model(
-        schema: dict[str, Any],
-        name: str,
-        defs: dict[str, Any],
+    schema: dict[str, Any],
+    name: str,
+    defs: dict[str, Any],
 ) -> type[BaseModel]:
     """
     Builds a Pydantic object model from a given JSON schema.

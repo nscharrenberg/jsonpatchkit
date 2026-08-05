@@ -161,7 +161,7 @@ def test_move_into_self_rejected():
 
 
 def test_copy_from_empty_string_root_pointer_is_not_treated_as_missing():
-    """"" is a syntactically valid JSON Pointer (the whole document) —
+    """ "" is a syntactically valid JSON Pointer (the whole document) —
     it must not be confused with a missing/omitted 'from' field."""
     doc = {"a": 1}
     result = apply_patch(doc, [{"op": "copy", "from": "", "path": "/backup"}])

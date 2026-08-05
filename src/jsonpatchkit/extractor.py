@@ -27,10 +27,10 @@ class Extractor:
     """
 
     def __init__(
-            self,
-            adapter: ModelAdapter,
-            schemas: dict[str, type[BaseModel]],
-            max_retries: int = 3,
+        self,
+        adapter: ModelAdapter,
+        schemas: dict[str, type[BaseModel]],
+        max_retries: int = 3,
     ) -> None:
         """Args:
         adapter: A `ModelAdapter` (e.g. `LangChainAdapter(chat_model)`).
@@ -52,9 +52,9 @@ class Extractor:
         self._max_retries = max_retries
 
     def extract(
-            self,
-            messages: list[Any],
-            existing: Optional[dict[str, dict[str, Any]]] = None,
+        self,
+        messages: list[Any],
+        existing: Optional[dict[str, dict[str, Any]]] = None,
     ) -> ExtractionResult:
         """Run one patch-validate-retry cycle.
 
@@ -117,9 +117,9 @@ class Extractor:
             tool_choice = PatchValidationErrors.__name__
 
     def _apply_and_validate(
-            self,
-            tool_calls: list[ToolCall],
-            doc_state: dict[str, dict[str, Any]],
+        self,
+        tool_calls: list[ToolCall],
+        doc_state: dict[str, dict[str, Any]],
     ) -> Optional[list[_PendingError]]:
         """Validate, patch, and apply each relevant tool call.
 
@@ -141,7 +141,9 @@ class Extractor:
                 continue
             relevant_calls_found = True
 
-            tool_schema = PatchDocument if call.name == PatchDocument.__name__ else PatchValidationErrors # noqa: E501
+            tool_schema = (
+                PatchDocument if call.name == PatchDocument.__name__ else PatchValidationErrors
+            )  # noqa: E501
             try:
                 parsed = tool_schema.model_validate(call.args)
             except ValidationError as exc:
@@ -157,9 +159,7 @@ class Extractor:
 
             doc_id = parsed.json_doc_id
             if doc_id not in self._schemas:
-                pending_errors.append(
-                    _PendingError(doc_id, f"Unknown json_doc_id {doc_id!r}.")
-                )
+                pending_errors.append(_PendingError(doc_id, f"Unknown json_doc_id {doc_id!r}."))
                 continue
 
             patch_ops = [op.model_dump(by_alias=True) for op in parsed.patches]
@@ -167,9 +167,7 @@ class Extractor:
             try:
                 patched = apply_patch(base_document, patch_ops)
             except JsonPatchKitError as exc:
-                pending_errors.append(
-                    _PendingError(doc_id, f"Patch could not be applied: {exc}")
-                )
+                pending_errors.append(_PendingError(doc_id, f"Patch could not be applied: {exc}"))
                 continue
 
             outcome = validate_against_schema(patched, self._schemas[doc_id])
@@ -204,9 +202,7 @@ class Extractor:
 
     @staticmethod
     def _context_message_text(doc_state: dict[str, dict[str, Any]]) -> str:
-        summary = "\n".join(
-            f"- {doc_id}: {json.dumps(doc)}" for doc_id, doc in doc_state.items()
-        )
+        summary = "\n".join(f"- {doc_id}: {json.dumps(doc)}" for doc_id, doc in doc_state.items())
         return (
             "Current documents (edit these via PatchDocument; use "
             "JSON Patch operations, do not regenerate them in full):\n"
@@ -217,7 +213,7 @@ class Extractor:
     def _error_message_text(errors: list[_PendingError]) -> str:
         lines = [f"[{e.doc_id}]\n{e.detail}" for e in errors]
         return (
-                "Your last response could not be applied. Call "
-                "PatchValidationErrors with corrective operations for the "
-                "same json_doc_id. Errors:\n" + "\n".join(lines)
+            "Your last response could not be applied. Call "
+            "PatchValidationErrors with corrective operations for the "
+            "same json_doc_id. Errors:\n" + "\n".join(lines)
         )

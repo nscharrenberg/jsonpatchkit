@@ -54,8 +54,7 @@ class LangChainAdapter:
         response = bound.invoke(messages)
         raw_tool_calls = getattr(response, "tool_calls", None) or []
         return [
-            ToolCall(name=tc["name"], args=tc["args"], id=tc.get("id"))
-            for tc in raw_tool_calls
+            ToolCall(name=tc["name"], args=tc["args"], id=tc.get("id")) for tc in raw_tool_calls
         ]
 
     def wrap_user_message(self, text: str) -> Any:

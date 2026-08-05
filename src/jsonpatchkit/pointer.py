@@ -160,9 +160,7 @@ def _list_index(token: str, list_len: int, for_write: bool) -> int:
     upper_bound = list_len if for_write else list_len - 1
 
     if index > upper_bound or index < 0:
-        raise PointerResolutionError(
-            f"Array index {index} out of bounds for length {list_len}."
-        )
+        raise PointerResolutionError(f"Array index {index} out of bounds for length {list_len}.")
 
     return index
 
@@ -234,8 +232,7 @@ def set_value(document: JsonValue, pointer: str, value: Any) -> None:
         parent.insert(index, value)
     else:
         raise PointerResolutionError(
-            f"Cannot set a value inside {type(parent).__name__} at "
-            f"'/{'/'.join(tokens[:-1])}'."
+            f"Cannot set a value inside {type(parent).__name__} at '/{'/'.join(tokens[:-1])}'."
         )
 
 
@@ -275,8 +272,7 @@ def replace_value(document: JsonValue, pointer: str, value: Any) -> None:
     if isinstance(parent, dict):
         if last not in parent:
             raise PointerResolutionError(
-                f"Cannot replace missing key {last!r} at "
-                f"'/{'/'.join(tokens[:-1])}'."
+                f"Cannot replace missing key {last!r} at '/{'/'.join(tokens[:-1])}'."
             )
         parent[last] = value
     elif isinstance(parent, list):
@@ -284,8 +280,7 @@ def replace_value(document: JsonValue, pointer: str, value: Any) -> None:
         parent[index] = value
     else:
         raise PointerResolutionError(
-            f"Cannot replace a value inside {type(parent).__name__} at "
-            f"'/{'/'.join(tokens[:-1])}'."
+            f"Cannot replace a value inside {type(parent).__name__} at '/{'/'.join(tokens[:-1])}'."
         )
 
 
@@ -324,14 +319,12 @@ def remove_value(document: JsonValue, pointer: str) -> Any:
     if isinstance(parent, dict):
         if last not in parent:
             raise PointerResolutionError(
-                f"Cannot remove missing key {last!r} at "
-                f"'/{'/'.join(tokens[:-1])}'."
+                f"Cannot remove missing key {last!r} at '/{'/'.join(tokens[:-1])}'."
             )
         return parent.pop(last)
     if isinstance(parent, list):
         index = _list_index(last, list_len=len(parent), for_write=False)
         return parent.pop(index)
     raise PointerResolutionError(
-        f"Cannot remove a value inside {type(parent).__name__} at "
-        f"'/{'/'.join(tokens[:-1])}'."
+        f"Cannot remove a value inside {type(parent).__name__} at '/{'/'.join(tokens[:-1])}'."
     )

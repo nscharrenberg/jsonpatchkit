@@ -60,7 +60,7 @@ def test_get_bare_zero_index_is_allowed():
 
 
 def test_set_value_missing_intermediate_object_raises():
-    """"add" must not silently create missing intermediate objects —
+    """ "add" must not silently create missing intermediate objects —
     the parent path must already exist, per RFC 6902 semantics."""
     doc = {"a": {}}
     with pytest.raises(PointerResolutionError):

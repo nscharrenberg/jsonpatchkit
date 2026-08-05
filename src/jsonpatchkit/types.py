@@ -16,6 +16,7 @@ class ToolCall:
         args (dict[str, Any]): The arguments provided to the tool.
         id (str | None): An optional identifier for the tool call.
     """
+
     name: str
     args: dict[str, Any]
     id: str | None = None
@@ -32,5 +33,6 @@ class ExtractionResult:
         retries_used (int): The number of retries performed during the extraction
             process to handle errors or failures.
     """
+
     documents: dict[str, dict[str, Any]] = field(default_factory=dict)
     retries_used: int = 0

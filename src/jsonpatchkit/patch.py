@@ -17,9 +17,9 @@ _ALL_OPS = _SIMPLE_OPS | _OPS_REQUIRING_FROM
 
 
 def apply_patch(
-        document: Any,
-        operations: list[dict[str, Any]],
-        in_place: bool = False,
+    document: Any,
+    operations: list[dict[str, Any]],
+    in_place: bool = False,
 ) -> Any:
     """
     Applies a series of patch operations to a document.
@@ -79,8 +79,7 @@ def _apply_single_operation(document: Any, operation: dict[str, Any]) -> None:
 
     if op not in _ALL_OPS:
         raise UnknownOperationError(
-            f"Unknown JSON Patch operation {op!r}; expected one of "
-            f"{sorted(_ALL_OPS)}."
+            f"Unknown JSON Patch operation {op!r}; expected one of {sorted(_ALL_OPS)}."
         )
 
     if "path" not in operation or operation["path"] is None:
@@ -144,6 +143,5 @@ def _reject_move_into_own_descendant(source: str, destination: str) -> None:
 
     if source_tokens and is_same_or_descendant:
         raise MalformedOperationError(
-            f"Cannot move '{source}' into itself or one of its own children "
-            f"('{destination}')."
+            f"Cannot move '{source}' into itself or one of its own children ('{destination}')."
         )

@@ -30,10 +30,12 @@ from jsonpatchkit import Extractor
 from jsonpatchkit.adapters.langchain_adapter import LangChainAdapter
 from langchain_anthropic import ChatAnthropic
 
+
 class Person(BaseModel):
     name: str
     age: int
     tags: list[str] = []
+
 
 model = ChatAnthropic(model="claude-sonnet-5")
 extractor = Extractor(LangChainAdapter(model), schemas={"Person": Person})

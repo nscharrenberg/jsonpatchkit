@@ -29,6 +29,7 @@ class JsonPatchOperation(BaseModel):
             'copy' operations. This specifies the source location of the data
             to be moved or copied.
     """
+
     op: PatchOpName = Field(description="The patch operation to perform.")
     path: str = Field(
         description=(
@@ -64,9 +65,8 @@ class PatchDocument(BaseModel):
             (optional).
         patches (List[JsonPatchOperation]): The JSON Patch operations to apply.
     """
-    json_doc_id: str = Field(
-        description="Identifier of the existing document being patched."
-    )
+
+    json_doc_id: str = Field(description="Identifier of the existing document being patched.")
     reasoning: str | None = Field(
         default=None,
         description="Brief note on what is being changed and why (optional).",
@@ -91,6 +91,7 @@ class PatchValidationErrors(BaseModel):
         patches (List[JsonPatchOperation]): Additional/corrective JSON Patch
             operations.
     """
+
     json_doc_id: str = Field(description="Identifier of the document being corrected.")
     patches: list[JsonPatchOperation] = Field(
         default_factory=list,

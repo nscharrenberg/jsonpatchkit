@@ -148,7 +148,7 @@ def test_property_name_matching_python_keyword_is_aliased():
 
 
 def test_colliding_sanitized_names_get_unique_suffixes():
-    """"first-name" and "first_name" both sanitize to "first_name" —
+    """ "first-name" and "first_name" both sanitize to "first_name" —
     they must not silently collide and drop one field."""
     schema = {
         "title": "Model",
