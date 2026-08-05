@@ -2,7 +2,7 @@ from typing import Any, Union
 
 from jsonpatchkit.exceptions import PointerResolutionError, PointerSyntaxError
 
-JsonValue = Union[dict, list, str, int, float, bool, None]
+JsonValue = Union[dict[str, Any], list[Any], str, int, float, bool, None]
 
 # Sentinel used to represent the "append to end of array" token ("-")
 # defined by RFC 6901 / RFC 6902.

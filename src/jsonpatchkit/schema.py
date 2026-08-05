@@ -212,7 +212,7 @@ def _resolve_type(field_schema: dict[str, Any], defs: dict[str, Any], context: s
 
         from typing import Literal
 
-        return Literal[tuple(enum_values)]  # type: ignore[valid-type]
+        return Literal[tuple(enum_values)]
 
     schema_type = field_schema.get("type")
 
@@ -229,7 +229,9 @@ def _resolve_type(field_schema: dict[str, Any], defs: dict[str, Any], context: s
 
         item_type = _resolve_type(items_schema, defs, context=f"{context}[]")
 
-        return list[item_type]
+        # item_type is a runtime-resolved type (from JSON schema, not known
+        # statically), so mypy can't validate this subscript as a type expression.
+        return list[item_type]  # type: ignore[valid-type]
 
     if schema_type in _PRIMITIVE_TYPES:
         return _PRIMITIVE_TYPES[schema_type]

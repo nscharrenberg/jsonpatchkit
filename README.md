@@ -114,6 +114,39 @@ with no extra flags needed.
    execution" below), so they need a real run more than most changes
    would.
 
+## CI/CD and releasing
+
+Three files handle this, all under `.github/`:
+
+- **`workflows/ci.yml`** — on every push/PR: `ruff check`, `ruff format --check`, and `mypy` in one job; `pytest` across a matrix of Python 3.10–3.13 × Ubuntu/Windows/macOS in another; then a build-verification job that runs `python -m build` + `twine check` to catch packaging problems before they'd ever hit a release.
+- **`workflows/release.yml`** — builds and publishes to PyPI when you publish a GitHub Release, using [trusted publishing](https://docs.pypi.org/trusted-publishers/) (OIDC) — no PyPI API token or repo secret involved. Also has a manual `workflow_dispatch` path that publishes to TestPyPI instead, for dry-running a release.
+- **`dependabot.yml`** — keeps both the GitHub Actions versions and the Python dependency floors current automatically, since action versions in particular tend to move faster than anyone remembers to re-check by hand.
+
+### Versioning: no more manually bumping a number
+
+The version comes from git tags via `hatch-vcs` (`[tool.hatch.version] source = "vcs"` in `pyproject.toml`), not a hardcoded string. This replaces the old approach of keeping `pyproject.toml`'s `version` and `__init__.py`'s `__version__` in sync by hand — which, worth naming honestly, had already drifted out of sync once in this project's own history (`0.1.1` vs `0.1.2`) before this fix. `src/jsonpatchkit/_version.py` is generated at build/install time and is gitignored — never commit it.
+
+To ship a release:
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+gh release create v0.2.0 --generate-notes    # or do this in the GitHub UI
+```
+
+Publishing that Release triggers `release.yml`, which builds `jsonpatchkit-0.2.0-*` with the version baked in from the tag and publishes it to PyPI.
+
+### One-time PyPI setup (before the first real release)
+
+Trusted publishing has to be configured on PyPI's side before `release.yml` can publish anything:
+
+1. On [pypi.org](https://pypi.org), either add a **trusted publisher** to an existing `jsonpatchkit` project, or use PyPI's **pending publisher** mechanism to reserve the name before the first upload (Project Settings → Publishing).
+2. Set the owner/repo to your GitHub repo, workflow filename to `release.yml`, and environment name to `pypi` (matching the `environment: name: pypi` in the workflow).
+3. Repeat on [test.pypi.org](https://test.pypi.org) with environment name `testpypi` if you want the manual dry-run path to work too.
+4. In your GitHub repo settings, create the `pypi` and `testpypi` **environments** (Settings → Environments) — this is what the `environment:` key in the workflow refers to, and it's also where you'd add required reviewers if you want a manual approval gate before publishing.
+
+No secrets to create anywhere in this flow — that's the point of trusted publishing.
+
 ## Architecture (why this differs from trustcall)
 
 | Module | Responsibility |
@@ -270,7 +303,7 @@ pytest
 If anything fails, it's most likely a small signature mismatch in the
 untested layer, not the core patch engine (which is verified).
 
-## Roadmap / Possible improvements
+## Roadmap / suggested next steps
 
 - Raw OpenAI / Anthropic SDK adapters (same `ModelAdapter` protocol,
   no LangChain required)

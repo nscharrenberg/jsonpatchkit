@@ -35,4 +35,13 @@ __all__ = [
     "ExtractionRetriesExhaustedError",
 ]
 
-__version__ = "0.1.0"
+try:
+    # Generated at build time by hatch-vcs from the current git tag —
+    # see [tool.hatch.build.hooks.vcs] in pyproject.toml. This file is
+    # not committed to source control (see .gitignore).
+    from jsonpatchkit._version import __version__
+except ImportError:
+    # Running from a source checkout where the build hook hasn't run
+    # (e.g. `python -m pytest` without an editable install). Not a
+    # real version, just enough for the package to import.
+    __version__ = "0.0.0.dev0+unknown"

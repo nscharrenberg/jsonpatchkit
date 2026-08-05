@@ -5,7 +5,7 @@ Returns a pre-programmed sequence of tool-call batches, one per call to
 deterministically without a real model.
 """
 
-from typing import Any, List, Type
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -13,7 +13,7 @@ from jsonpatchkit.types import ToolCall
 
 
 class ScriptedAdapter:
-    def __init__(self, responses: List[List[ToolCall]]) -> None:
+    def __init__(self, responses: list[list[ToolCall]]) -> None:
         """Args:
         responses: One list of ToolCalls per expected invocation, in order.
         """
@@ -22,10 +22,10 @@ class ScriptedAdapter:
 
     def call_with_tools(
         self,
-        messages: List[Any],
-        tools: List[Type[BaseModel]],
+        messages: list[Any],
+        tools: list[type[BaseModel]],
         tool_choice: str,
-    ) -> List[ToolCall]:
+    ) -> list[ToolCall]:
         if self.calls_made >= len(self._responses):
             raise AssertionError("ScriptedAdapter called more times than scripted.")
         response = self._responses[self.calls_made]

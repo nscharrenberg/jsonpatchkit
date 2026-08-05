@@ -1,4 +1,4 @@
-from typing import Any, List, Protocol, Type, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
@@ -9,10 +9,10 @@ from jsonpatchkit.types import ToolCall
 class ModelAdapter(Protocol):
     def call_with_tools(
         self,
-        messages: List[Any],
-        tools: List[Type[BaseModel]],
+        messages: list[Any],
+        tools: list[type[BaseModel]],
         tool_choice: str,
-    ) -> List[ToolCall]:
+    ) -> list[ToolCall]:
         """
         Processes a list of messages and maps them into tool calls using the
         specified tools and tool choice.

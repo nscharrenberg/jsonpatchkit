@@ -6,6 +6,7 @@ Uses `BaseModel.model_validate` and `ValidationError.errors()` from Pydantic
 https://docs.pydantic.dev/latest/errors/errors/#error-messages)
 """
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -27,16 +28,16 @@ class ValidationOutcome:
         is_valid (bool): Indicates whether the validation was successful.
         validated (Any): The validated data that corresponds to a successful
             validation outcome, or None if validation failed.
-        errors (Optional[list[dict]]): A list of error details providing insights into
-            the reasons for validation failure, or None if validation succeeded.
+        errors (Optional[Sequence[Mapping[str, Any]]]): A list of error details providing
+            insights into the reasons for validation failure, or None if validation succeeded.
     """
 
     is_valid: bool
     validated: Any = None
-    errors: list[dict] | None = None  # type: ignore[type-arg]
+    errors: Sequence[Mapping[str, Any]] | None = None
 
 
-def validate_against_schema(data: dict, schema: type[BaseModel]) -> ValidationOutcome:  # type: ignore[type-arg]
+def validate_against_schema(data: dict[str, Any], schema: type[BaseModel]) -> ValidationOutcome:
     """
     Validates input data against a specified pydantic schema.
 
@@ -46,7 +47,7 @@ def validate_against_schema(data: dict, schema: type[BaseModel]) -> ValidationOu
     outcome. Otherwise, it provides a list of validation errors.
 
     Args:
-        data (dict): The input data to validate.
+        data (dict[str, Any]): The input data to validate.
         schema (Type[BaseModel]): The schema class used to validate the input data.
             It must be a subclass of BaseModel.
 
@@ -58,12 +59,12 @@ def validate_against_schema(data: dict, schema: type[BaseModel]) -> ValidationOu
     try:
         instance = schema.model_validate(data)
     except ValidationError as exc:
-        return ValidationOutcome(is_valid=False, errors=exc.errors())  # type: ignore[arg-type]
+        return ValidationOutcome(is_valid=False, errors=exc.errors())
 
     return ValidationOutcome(is_valid=True, validated=instance)
 
 
-def format_errors_for_retry_prompt(errors: list[dict]) -> str:  # type: ignore[type-arg]
+def format_errors_for_retry_prompt(errors: Sequence[Mapping[str, Any]]) -> str:
     """
     Render validation errors as a compact string for a retry prompt.
 
@@ -73,9 +74,10 @@ def format_errors_for_retry_prompt(errors: list[dict]) -> str:  # type: ignore[t
     consistent style.
 
     Args:
-        errors (list[dict]): A list of dictionaries representing errors. Each dictionary should
-         contain at least the keys 'loc' (a location represented as a tuple of path segments),
-         'msg' (a message describing the error), and 'type' (a string identifying the error type).
+        errors (Sequence[Mapping[str, Any]]): A list of dictionaries representing errors. Each
+         dictionary should contain at least the keys 'loc' (a location represented as a tuple
+         of path segments), 'msg' (a message describing the error), and 'type' (a string
+         identifying the error type).
 
     Returns:
         str: A single string combining all errors into a formatted, human-readable list,

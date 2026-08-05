@@ -102,7 +102,7 @@ def test_gives_up_after_max_retries():
     bad_call = [
         ToolCall(
             name=PatchDocument.__name__,
-            args={"json_doc_id": "Person", "patches": [{"op": "add", "path": "/name", "value": "Alice"}]},
+            args={"json_doc_id": "Person", "patches": [{"op": "add", "path": "/name", "value": "Alice"}]}, # noqa: E501
         )
     ]
     # Every attempt is still missing the required "age" field.

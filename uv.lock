@@ -266,36 +266,38 @@ wheels = [
 
 [[package]]
 name = "jsonpatchkit"
-version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
 ]
 
 [package.optional-dependencies]
+langchain = [
+    { name = "langchain-core" },
+]
+
+[package.dev-dependencies]
 dev = [
     { name = "langchain-core" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "ruff" },
 ]
-langchain = [
-    { name = "langchain-core" },
-]
 
 [package.metadata]
 requires-dist = [
-    { name = "langchain-core", marker = "extra == 'dev'", specifier = ">=1.5.3,<2.0" },
     { name = "langchain-core", marker = "extra == 'langchain'", specifier = ">=1.5.3,<2.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=2.3.0" },
     { name = "pydantic", specifier = ">=2.13.4,<3.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.1.1,<10.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.16.1" },
 ]
-provides-extras = ["langchain", "dev"]
+provides-extras = ["langchain"]
 
 [package.metadata.requires-dev]
-dev = []
+dev = [
+    { name = "langchain-core", specifier = ">=1.5.3,<2.0" },
+    { name = "mypy", specifier = ">=2.3.0" },
+    { name = "pytest", specifier = ">=9.1.1,<10.0" },
+    { name = "ruff", specifier = ">=0.16.1" },
+]
 
 [[package]]
 name = "jsonpointer"

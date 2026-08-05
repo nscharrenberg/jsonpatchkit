@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Optional
 
 from pydantic import BaseModel, ValidationError
 
@@ -29,7 +29,7 @@ class Extractor:
     def __init__(
             self,
             adapter: ModelAdapter,
-            schemas: Dict[str, Type[BaseModel]],
+            schemas: dict[str, type[BaseModel]],
             max_retries: int = 3,
     ) -> None:
         """Args:
@@ -53,8 +53,8 @@ class Extractor:
 
     def extract(
             self,
-            messages: List[Any],
-            existing: Optional[Dict[str, dict]] = None,
+            messages: list[Any],
+            existing: Optional[dict[str, dict[str, Any]]] = None,
     ) -> ExtractionResult:
         """Run one patch-validate-retry cycle.
 
@@ -81,14 +81,14 @@ class Extractor:
                 the model never calls a recognized patch tool at all.
         """
         existing = existing or {}
-        doc_state: Dict[str, dict] = {
+        doc_state: dict[str, dict[str, Any]] = {
             doc_id: dict(existing.get(doc_id, {})) for doc_id in self._schemas
         }
         working_messages = list(messages) + [
             self._adapter.wrap_user_message(self._context_message_text(doc_state))
         ]
 
-        tools: List[Type[BaseModel]] = [PatchDocument]
+        tools: list[type[BaseModel]] = [PatchDocument]
         tool_choice = PatchDocument.__name__
         retries_used = 0
 
@@ -118,9 +118,9 @@ class Extractor:
 
     def _apply_and_validate(
             self,
-            tool_calls: List[ToolCall],
-            doc_state: Dict[str, dict],
-    ) -> Optional[List[_PendingError]]:
+            tool_calls: list[ToolCall],
+            doc_state: dict[str, dict[str, Any]],
+    ) -> Optional[list[_PendingError]]:
         """Validate, patch, and apply each relevant tool call.
 
         Returns:
@@ -133,7 +133,7 @@ class Extractor:
             success just because there was nothing to report an error
             about.
         """
-        pending_errors: List[_PendingError] = []
+        pending_errors: list[_PendingError] = []
         relevant_calls_found = False
 
         for call in tool_calls:
@@ -141,7 +141,7 @@ class Extractor:
                 continue
             relevant_calls_found = True
 
-            tool_schema = PatchDocument if call.name == PatchDocument.__name__ else PatchValidationErrors
+            tool_schema = PatchDocument if call.name == PatchDocument.__name__ else PatchValidationErrors # noqa: E501
             try:
                 parsed = tool_schema.model_validate(call.args)
             except ValidationError as exc:
@@ -185,6 +185,8 @@ class Extractor:
             # leak into a successful `ExtractionResult`.
             doc_state[doc_id] = patched
             if not outcome.is_valid:
+                # validate_against_schema always populates `errors` when `is_valid` is False.
+                assert outcome.errors is not None
                 pending_errors.append(
                     _PendingError(doc_id, format_errors_for_retry_prompt(outcome.errors))
                 )
@@ -201,7 +203,7 @@ class Extractor:
         return pending_errors or None
 
     @staticmethod
-    def _context_message_text(doc_state: Dict[str, dict]) -> str:
+    def _context_message_text(doc_state: dict[str, dict[str, Any]]) -> str:
         summary = "\n".join(
             f"- {doc_id}: {json.dumps(doc)}" for doc_id, doc in doc_state.items()
         )
@@ -212,7 +214,7 @@ class Extractor:
         )
 
     @staticmethod
-    def _error_message_text(errors: List[_PendingError]) -> str:
+    def _error_message_text(errors: list[_PendingError]) -> str:
         lines = [f"[{e.doc_id}]\n{e.detail}" for e in errors]
         return (
                 "Your last response could not be applied. Call "

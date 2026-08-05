@@ -27,10 +27,10 @@ class ExtractionResult:
     Outcome of a single `Extractor.extract(...)` call.
 
     Attributes:
-        documents (dict[str, dict]): Final documents keyed by `json_doc_id` (as plain dicts,
-        already validated against their schema).
+        documents (dict[str, dict[str, Any]]): Final documents keyed by `json_doc_id` (as plain
+        dicts, already validated against their schema).
         retries_used (int): The number of retries performed during the extraction
             process to handle errors or failures.
     """
-    documents: dict[str, dict] = field(default_factory=dict)  # type: ignore[type-arg]
+    documents: dict[str, dict[str, Any]] = field(default_factory=dict)
     retries_used: int = 0

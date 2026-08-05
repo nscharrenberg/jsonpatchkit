@@ -1,4 +1,4 @@
-from typing import Any, List, Type
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -33,10 +33,10 @@ class LangChainAdapter:
 
     def call_with_tools(
         self,
-        messages: List[Any],
-        tools: List[Type[BaseModel]],
+        messages: list[Any],
+        tools: list[type[BaseModel]],
         tool_choice: str,
-    ) -> List[ToolCall]:
+    ) -> list[ToolCall]:
         """
         Processes messages by invoking specific tools, selected based on the tool choice,
         and returns a list of tool calls derived from the response.
